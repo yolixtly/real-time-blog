@@ -10,6 +10,11 @@
             "StackName": "amplify-real-time-blog-blogapi-161545",
             "StackId": "arn:aws:cloudformation:us-west-2:344465982657:stack/amplify-real-time-blog-blogapi-161545/143417d0-7176-11eb-a2e6-024a246d2741",
             "AmplifyAppId": "d43xoyju6vona"
+        },
+        "categories": {
+            "auth": {
+                "realtimeblog5eba39f4": {}
+            }
         }
     }
 }
