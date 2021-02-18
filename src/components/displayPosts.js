@@ -3,7 +3,7 @@ import { listPosts } from '../graphql/queries';
 import { API, graphqlOperation } from 'aws-amplify';
 import DeletePost from './DeletePost';
 import EditPost from './EditPost';
-import { onCreatePost, onDeletePost } from '../graphql/subscriptions';
+import { onCreatePost, onDeletePost, onUpdatePost } from '../graphql/subscriptions';
 class DisplayPost extends Component {
     state = {
         posts: []
@@ -12,7 +12,7 @@ class DisplayPost extends Component {
         // Load Initial data from source
         this.getPosts();
 
-        // Subscribe to updates in data
+        // Subscribe to Additions in data
         this.createPostListener = API.graphql(graphqlOperation(onCreatePost))
             .subscribe({
                 next: postData => {
@@ -33,12 +33,31 @@ class DisplayPost extends Component {
                     const updatedPosts = this.state.posts.filter(post => post.id !== deletedPost.id)
                     this.setState({ posts: updatedPosts })
                 }
-            })
+            });
+
+        // Subscribe to Updates in data
+        this.updatePostListener = API.graphql(graphqlOperation(onUpdatePost))
+            .subscribe({
+                next: postData => {
+                    const { posts } = this.state
+                    const updatePost = postData.value.data.onUpdatePost
+                    const index = posts.findIndex(post => post.id === updatePost.id) //had forgotten to say updatePost.id!
+                    const updatePosts = [
+                        ...posts.slice(0, index),
+                        updatePost,
+                        ...posts.slice(index + 1)
+                    ]
+
+                    this.setState({ posts: updatePosts })
+
+                }
+            });
     }
 
     componentWillUnmount() {
         this.createPostListener.unsubscribe();
         this.deletePostListener.unsubscribe();
+        this.updatePostListener.unsubscribe();
     }
 
     getPosts = async () => {
@@ -46,9 +65,7 @@ class DisplayPost extends Component {
 
         this.setState({
             posts: result.data.listPosts.items
-        })
-        console.log(`All Posts: ${JSON.stringify(result.data.listPosts.items)}`)
-        console.log(result.data.listPosts.items)
+        });
     }
     render() {
         const { posts } = this.state;
@@ -70,7 +87,7 @@ class DisplayPost extends Component {
                     <br />
                     <span>
                         <DeletePost postId={post.id} />
-                        <EditPost />
+                        <EditPost {...post} />
                     </span>
                 </div >
             )
