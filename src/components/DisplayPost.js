@@ -7,7 +7,7 @@ import CreateCommentPost from './CreateCommentPost';
 import CommentPost from './CommentPost';
 
 import { onCreateComment, onCreatePost, onDeletePost, onUpdatePost } from '../graphql/subscriptions';
-class DisplayPosts extends Component {
+class DisplayPost extends Component {
     state = {
         posts: []
     }
@@ -132,4 +132,4 @@ const rowStyle = {
     margin: '14px'
 }
 
-export default DisplayPosts;
+export default DisplayPost;
