@@ -13,7 +13,6 @@ class CreatePost extends Component {
     componentDidMount = async () => {
         await Auth.currentUserInfo()
             .then(user => {
-                console.log("User", user);
                 this.setState({
                     postOwnerUsername: user.username,
                     postOwnerId: user.attributes.sub,
@@ -37,7 +36,6 @@ class CreatePost extends Component {
             createdAt: new Date().toISOString()
         }
 
-        console.log(input);
         await API.graphql(graphqlOperation(createPost, { input }))
 
         this.setState({

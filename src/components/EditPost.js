@@ -20,7 +20,6 @@ class EditPost extends Component {
     componentDidMount = async () => {
         await Auth.currentUserInfo()
             .then(user => {
-                console.log('user is', user)
                 this.setState({
                     postOwnerId: user.attributes.sub,
                     postOwnerUsername: user.username,
@@ -63,7 +62,6 @@ class EditPost extends Component {
 
     }
     render() {
-        console.log(this.props)
         return (
             <>
                 {
