@@ -4,7 +4,9 @@ import { API, graphqlOperation } from 'aws-amplify';
 import DeletePost from './DeletePost';
 import EditPost from './EditPost';
 import CreateCommentPost from './CreateCommentPost';
-import { onCreatePost, onDeletePost, onUpdatePost } from '../graphql/subscriptions';
+import CommentPost from './CommentPost';
+
+import { onCreateComment, onCreatePost, onDeletePost, onUpdatePost } from '../graphql/subscriptions';
 class DisplayPost extends Component {
     state = {
         posts: []
@@ -53,12 +55,31 @@ class DisplayPost extends Component {
 
                 }
             });
+
+        // Subscribe to Additions in data
+        this.createCommentPostListener = API.graphql(graphqlOperation(onCreateComment))
+            .subscribe({
+                next: postData => {
+                    const newComment = postData.value.data.onCreateComment;
+                    const posts = [...this.state.posts];
+
+                    for (const post of posts) {
+                        if (newComment.post.id === post.id) {
+                            post.comments.items.push(newComment);
+                        }
+                    }
+
+                    this.setState({ posts: posts })
+                }
+            })
     }
 
     componentWillUnmount() {
         this.createPostListener.unsubscribe();
         this.deletePostListener.unsubscribe();
         this.updatePostListener.unsubscribe();
+
+        this.createCommentPostListener.unsubscribe();
     }
 
     getPosts = async () => {
@@ -92,6 +113,11 @@ class DisplayPost extends Component {
                     </span>
                     <span>
                         <CreateCommentPost postId={post.id} />
+                        {post.comments.items.length > 0 && <span style={{ fontSize: "19px", color: "gray" }}>
+                            Comments: </span>}
+                        {
+                            post.comments.items.map((comment, index) => <CommentPost key={index} commentData={comment} />)
+                        }
                     </span>
                 </div >
             )
